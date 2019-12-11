@@ -75,10 +75,15 @@ func createProductEndpoint(w http.ResponseWriter, req *http.Request){
 */
 
 func deleteProductByIdEndpoint(w http.ResponseWriter, req *http.Request){
-
+	params := mux.Vars(req)
+	for index,item := range products {
+		if item.Id == params ["id"]  {
+			products = append(products[:index], products[index + 1:]...)
+			break
+		}
+	}
+	json.NewEncoder(w).Encode(products) 
 }
-
-
 /*
 	Función principal
 */
