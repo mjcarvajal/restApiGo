@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type product struct{
+type Product struct{
 	Id string `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 	Brand string `json:"brand,omitempty"`
@@ -23,7 +23,7 @@ type DateProduct struct {
 	Expiration string `json:"expiration,omitempty"`
 }
 
-var products []product
+var products []Product
 
 
 /*
@@ -33,8 +33,7 @@ var products []product
 	req Variable con la información enviada por el navegador
 */
 func getProdcutsEndpoint(w http.ResponseWriter, req *http.Request) {
-	json.NewEncoder(w).Encode(products)
-
+	json.NewEncoder(w).Encode(products) 
 }
 
 /*
@@ -44,7 +43,14 @@ func getProdcutsEndpoint(w http.ResponseWriter, req *http.Request) {
 	req Variable con la información enviada por el navegador
 */
 func getProductbyIdEndpoint(w http.ResponseWriter, req *http.Request){
-
+	params := mux.Vars(req)
+	for _, item := range products {
+		if item.Id == params["id"] {
+			json.NewEncoder(w).Encode(item)
+			return
+		}
+	}
+	json.NewEncoder(w).Encode(&products)
 }
 /*
 	Función para crear un nuevo producto 
@@ -53,7 +59,12 @@ func getProductbyIdEndpoint(w http.ResponseWriter, req *http.Request){
 	req Variable con la información enviada por el navegador
 */
 func createProductEndpoint(w http.ResponseWriter, req *http.Request){
-
+	params := mux.Vars(req)
+	var product Product
+	_ = json.NewDecoder(req.Body).Decode(&product)
+	product.Id = params["id"]
+	products = append(products, product)
+	json.NewEncoder(w).Encode(product)
 }
 
 /*
@@ -77,8 +88,8 @@ func main (){
 
 	// Llenado del arreglo de productos
 
-	products= append(products, product{Id: "1", Name: "Papas", Brand: "Margarita", DateProduct: &DateProduct{Lote: "10/02/2019", Expiration: "20/02/2020"}})
-	products= append(products, product{Id: "2", Name: "Chitos", Brand: "Chirricos", DateProduct: &DateProduct{Lote: "10/02/2019", Expiration: "20/02/2020"}})
+	products= append(products, Product{Id: "1", Name: "Papas", Brand: "Margarita", DateProduct: &DateProduct{Lote: "10/02/2019", Expiration: "20/02/2020"}})
+	products= append(products, Product{Id: "2", Name: "Chitos", Brand: "Chirricos", DateProduct: &DateProduct{Lote: "10/02/2019", Expiration: "20/02/2020"}})
 
 	// Endopoins 
 	router.HandleFunc("/products", getProdcutsEndpoint).Methods("GET")
